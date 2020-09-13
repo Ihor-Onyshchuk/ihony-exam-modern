@@ -9,7 +9,6 @@ import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 
 import * as strings from 'IhonyModernWebPartStrings';
 import IhonyModern from './components/IhonyModern';
-import { IIhonyModernProps } from './components/IIhonyModernProps';
 
 export interface IIhonyModernWebPartProps {
   description: string;
@@ -18,10 +17,11 @@ export interface IIhonyModernWebPartProps {
 export default class IhonyModernWebPart extends BaseClientSideWebPart<IIhonyModernWebPartProps> {
 
   public render(): void {
-    const element: React.ReactElement<IIhonyModernProps> = React.createElement(
+    const element: React.ReactElement<any> = React.createElement(
       IhonyModern,
       {
-        description: this.properties.description
+        description: this.properties.description,
+        context: this.context
       }
     );
 
