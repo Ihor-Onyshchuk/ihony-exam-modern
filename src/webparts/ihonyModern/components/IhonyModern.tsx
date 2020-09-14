@@ -5,6 +5,7 @@ import "@pnp/sp/webs";
 import "@pnp/sp/lists";
 import "@pnp/sp/items";
 import styles from './IhonyModern.module.scss';
+import { IItemAddResult } from '@pnp/sp/items';
 
 interface IProps {
   description: string;
@@ -12,11 +13,9 @@ interface IProps {
 }
 
 interface IState {
-  title: string;
+  Title: string;
   name: string;
   category: string;
-  company: string;
-  country: string;
   description: string;
   inStock: string;
   goods: any[];
@@ -24,12 +23,10 @@ interface IState {
 
 export default class IhonyModern extends React.Component<IProps, IState> {
   state={
-    title: '',
+    Title: '',
     name: '',
-    company: '',
-    country: '',
     description: '',
-    category: '',
+    category: 'food',
     inStock: 'Yes',
     goods: null,
   }
@@ -40,10 +37,9 @@ export default class IhonyModern extends React.Component<IProps, IState> {
     })
 
     const goods: any[] = await sp.web.lists.getByTitle("Goods").items
-      .select("Title", "description", "Id", "inStock", "category", "company/Title")
+      .select("Title", "description", "Id", "inStock", "category", "company/Title", "name")
       .expand("company")
       .get();
-
     this.setState({goods})
   }
 
@@ -56,27 +52,54 @@ export default class IhonyModern extends React.Component<IProps, IState> {
     this.setState({[name]: value} as React.ComponentState);
   }
 
-  public handleSubmit = (event: any) => {
+  public handleSubmit = async (event: any) => {
     event.preventDefault();
+    const {Title, name, category, description, inStock} = this.state;
+    const newProduct = await sp.web.lists.getByTitle("Goods").items.add({
+      name,
+      Title, 
+      category,
+      description,
+      inStock: inStock === 'Yes' ? true : false,
+    })
+    this.setState(({goods}) => {
+      const {Title, name, category, description, inStock} = newProduct.data;
+
+      return {
+        Title: '',
+        name: '',
+        description: '',
+        category: 'food',
+        inStock: 'Yes',
+        goods: [
+          {Title, name, category, description, inStock},
+          ...goods,
+        ]
+      }
+    })
+
   }
 
   public render(): React.ReactElement<IProps> {
-    const {title, name, category, company, country, description, inStock, goods} = this.state;
+    const {Title, name, category, description, inStock, goods} = this.state;
 
     return (
-      <div className="container">
+      <div>
         <h1>Goods List</h1>
         <ul>
-          {goods && goods.map(({Title, category, company}) => (
-            <li>
+          {goods && goods.map(({Title, name, description, category, Id}) => (
+            <li key={Id}>
               <div>
                 <b>title:</b> {Title}
               </div>
               <div>
-                <b>category:</b> {category}
+                <b>name:</b> {name}
               </div>
               <div>
-                <b>company:</b> {company.Title}
+                <b>description:</b> {description}
+              </div>
+              <div>
+                <b>category:</b> {category}
               </div>
             </li>
           ))}
@@ -89,8 +112,8 @@ export default class IhonyModern extends React.Component<IProps, IState> {
             <div>Title</div>
             <input
               type="text" 
-              name="title"
-              value={title}
+              name="Title"
+              value={Title}
             />
           </div>
           <div>
@@ -99,22 +122,6 @@ export default class IhonyModern extends React.Component<IProps, IState> {
               type="text" 
               name="name"
               value={name}
-            />
-          </div>
-          <div>
-            <div>Company</div>
-            <input
-              type="text" 
-              name="company"
-              value={company}
-            />
-          </div>
-          <div>
-            <div>Country</div>
-            <input
-              type="text" 
-              name="country"
-              value={country}
             />
           </div>
           <div>
@@ -143,7 +150,7 @@ export default class IhonyModern extends React.Component<IProps, IState> {
                 type="radio" 
                 value="Yes"
                 name="inStock"
-                checked={inStock === 'Yes'}
+                checked={inStock === "Yes"}
               />
               Yes
             </label>
@@ -154,7 +161,7 @@ export default class IhonyModern extends React.Component<IProps, IState> {
                 type="radio" 
                 value="No"
                 name="inStock"
-                checked={inStock === 'No'}
+                checked={inStock === "No"}
               />
               No
             </label>
