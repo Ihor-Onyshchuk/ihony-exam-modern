@@ -6,6 +6,7 @@ import "@pnp/sp/lists";
 import "@pnp/sp/items";
 import styles from './IhonyModern.module.scss';
 import { IItemAddResult } from '@pnp/sp/items';
+import { PrimaryButton } from 'office-ui-fabric-react';
 
 interface IProps {
   description: string;
@@ -167,9 +168,7 @@ export default class IhonyModern extends React.Component<IProps, IState> {
             </label>
         </div>
           </div>
-          <button>
-            Add
-          </button>
+          <PrimaryButton text="Add"/>
         </form>
       </div>
     );
